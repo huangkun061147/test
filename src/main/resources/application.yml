@@ -1,0 +1,66 @@
+
+
+# 默认的profile为dev，其他环境通过指定启动参数使用不同的profile，比如：  
+#   测试环境：java -jar quartz-service.jar --spring.profiles.active=test  
+#   生产环境：java -jar quartz-service.jar --spring.profiles.active=prod  
+spring:
+  datasource:
+    #type: com.zaxxer.hikari.HikariDataSource
+    #这里是配置druid连接池，以下都是druid的配置信息
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/nbiot?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useUnicode=true&useSSL=false
+    username: root
+    password: 123456
+    driverClassName: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    initialSize: 10
+    minIdle: 10
+    maxActive: 50
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT1FROMDUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    filters: stat,wall,log4j
+    logSlowSql: true
+
+  quartz:
+    #相关属性配置
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: clusteredScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: false
+            clusterCheckinInterval: 10000
+            useProperties: false
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 20
+            threadPriority: 9
+            threadsInheritContextClassLoaderOfInitializingThread: true
+    #数据库方式
+    job-store-type: jdbc
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml    #把xml文件放在com.XX.mapper.*中可能会出现找到的问题，这里把他放在resource下的mapper中
+  typeAliasesPackage: classpath:com.opple.entity       #这里是实体类的位置，#实体扫描，多个package用逗号或者分号分隔
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+logging:
+  level:
+    com.quartz: debug
+  file:
+    name: quartz-service.log
+server:
+  port: 8088
